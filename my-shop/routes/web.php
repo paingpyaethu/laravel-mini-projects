@@ -19,13 +19,17 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
 
 
-Route::middleware('auth')->group(function (){
+Route::middleware(['auth','IsBanned'])->group(function (){
+   Route::get('/home', 'HomeController@index')->name('home');
+
 
    Route::middleware('AdminOnly')->group(function (){
       Route::get('/user-manager', 'UserManagerController@index')->name('user-manager.index');
+      Route::post('/make-admin','UserManagerController@makeAdmin')->name('user-manager.makeAdmin');
+      Route::post('/ban-user','UserManagerController@banUser')->name('user-manager.banUser');
+      Route::post('/unbanned-user','UserManagerController@unBanUser')->name('user-manager.unBanUser');
    });
 
    Route::prefix('profile')->group(function(){
