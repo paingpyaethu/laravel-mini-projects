@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserManagerController extends Controller
 {
@@ -47,5 +49,21 @@ class UserManagerController extends Controller
          $currentUser->update();
       }
       return redirect()->back()->with('toast',['icon'=>'success','title'=>$currentUser->name.' is Restored.']);
+   }
+
+   public function changeUserPassword(Request $request)
+   {
+      $validator = Validator::make($request->all(),[
+         'password' => 'required|String|min:8'
+      ]);
+      if ($validator->fails()) {
+         return response()->json(['status'=>422, 'message'=>$validator->errors()]);
+      }
+      $currentUser = User::find($request->id);
+      if ($currentUser->role == 1) {
+         $currentUser->password = Hash::make($request->password);
+         $currentUser->update();
+      }
+      return response()->json(['status'=>200, 'message'=>"Password Changed for $currentUser->name."]);
    }
 }

@@ -30,6 +30,7 @@ Route::middleware(['auth','IsBanned'])->group(function (){
       Route::post('/make-admin','UserManagerController@makeAdmin')->name('user-manager.makeAdmin');
       Route::post('/ban-user','UserManagerController@banUser')->name('user-manager.banUser');
       Route::post('/unbanned-user','UserManagerController@unBanUser')->name('user-manager.unBanUser');
+      Route::post('/change-user-password','UserManagerController@changeUserPassword')->name('user-manager.changeUserPassword');
    });
 
    Route::prefix('profile')->group(function(){

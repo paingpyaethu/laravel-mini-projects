@@ -24,7 +24,6 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Role</th>
-                        <th>isBanned</th>
                         <th>Action</th>
                         <th>Created_at</th>
                         <th>Updated_at</th>
@@ -36,10 +35,11 @@
                            <td>{{ $user->id }}</td>
                            <td>{{ $user->name }}</td>
                            <td>{{ $user->email }}</td>
-                           <td>{{ $user->role }}</td>
-                           <td>{{ $user->isBanned }}</td>
+                           <td>{{ $user->role ? "User" : "Admin" }}</td>
                            <td>
                               @if($user->role == 1)
+                                 <button class="btn btn-sm btn-outline-warning"
+                                         onclick="changePassword({{ $user->id }})">Change Password</button>
                                  @if($user->isBanned == 0)
                                     <form action="{{ route('user-manager.makeAdmin') }}" class="d-inline-block"
                                           id="form{{ $user->id }}" method="post">
@@ -60,6 +60,8 @@
                                           Ban User
                                        </button>
                                     </form>
+
+
                                  @else
                                     <form action="{{ route('user-manager.unBanUser') }}" class="d-inline-block"
                                           id="unBanForm{{ $user->id }}" method="post">
@@ -67,15 +69,31 @@
                                        <input type="hidden" name="id" value="{{ $user->id }}">
                                        <button type="button" class="btn btn-sm btn-outline-success"
                                                onclick="return unBanUser({{ $user->id }})">
-                                          UnBan User
+                                          Restore
                                        </button>
                                     </form>
                                     <span class="badge badge-danger">Banned</span>
                                  @endif
                               @endif
                            </td>
-                           <td>{{ $user->created_at }}</td>
-                           <td>{{ $user->updated_at }}</td>
+                           <td>
+                              <small>
+                                 <i class="feather-calendar"></i>
+                                 {{ $user->created_at -> format('d M Y') }}
+                                 <br>
+                                 <i class="feather-clock"></i>
+                                 {{ $user->created_at -> format('h:i A') }}
+                              </small>
+                           </td>
+                           <td>
+                              <small>
+                                 <i class="feather-calendar"></i>
+                                 {{ $user->updated_at -> format('d M Y') }}
+                                 <br>
+                                 <i class="feather-clock"></i>
+                                 {{ $user->updated_at -> format('h:i A') }}
+                              </small>
+                           </td>
                         </tr>
                      @endforeach
                      </tbody>
@@ -158,5 +176,43 @@
             }
          })
       }
+
+
+      function changePassword(id) {
+         let url = "{{ route('user-manager.changeUserPassword') }}";
+         Swal.fire({
+            title: 'Change Password for {{ $user->name }}',
+            input: 'password',
+            inputAttributes: {
+               autocapitalize: 'off',
+               required: 'required',
+               minLength: 8
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            showLoaderOnConfirm: true,
+
+            preConfirm: function (newPassword) {
+               // console.log(id,newPassword);
+               $.post(url,{
+                  id: id,
+                  password: newPassword,
+                  _token: "{{ csrf_token() }}"
+               }).done(function (data) {
+                  if(data.status == 200) {
+                     Swal.fire('Congratulation', data.message, 'success')
+                  }else {
+                     console.log(data);
+                     Swal.fire(
+                        'Error',
+                        data.message.password[0],
+                        'error'
+                     )
+                  }
+               })
+            }
+         })
+      }
+
    </script>
 @stop
